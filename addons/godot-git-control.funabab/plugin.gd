@@ -16,7 +16,7 @@ var plugin_mode = 0;
 
 func _enter_tree():
 	Settings = load("res://addons/godot-git-control.funabab/scripts/settings.gd").new();
-	Lang = load_lang(Settings.get("language"));
+	Lang = load_lang(Settings.gett("language"));
 	Git = load("res://addons/godot-git-control.funabab/scripts/git.gd").new(get_editor_interface().get_base_control(), Settings, Lang);
 
 	plugin_mode = Settings.get_as_int("plugin_mode");
