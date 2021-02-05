@@ -1,0 +1,68 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Main.shader" type="Shader" id=1]
+[ext_resource path="res://Movement.gd" type="Script" id=2]
+[ext_resource path="res://assets/maujoe.camera_control/scripts/camera_control.gd" type="Script" id=3]
+
+[sub_resource type="ShaderMaterial" id=1]
+shader = ExtResource( 1 )
+shader_param/MAX_STEPS = 250
+shader_param/MAX_DIST = 200.0
+shader_param/MIN_HIT_DIST = 0.01
+shader_param/DERIVATIVE_STEP = 0.0001
+shader_param/fov = 45.0
+shader_param/cameraPos = Vector3( 0, 0, 14.5 )
+shader_param/front = Vector3( -0.5, 0, -1 )
+shader_param/up = Vector3( 0, 1, 0 )
+shader_param/globalAmbient = 0.1
+shader_param/globalDiffuse = 1.0
+shader_param/globalSpecular = 1.0
+shader_param/globalSpecularExponent = 64.0
+shader_param/lightPos = Vector3( -3, 5, 3 )
+shader_param/lightColor = Vector3( 0.5, 0.5, 1 )
+shader_param/ambientColor = Vector3( 1, 1, 1 )
+
+[node name="Root" type="Node"]
+script = ExtResource( 2 )
+
+[node name="Canvas" type="ColorRect" parent="."]
+material = SubResource( 1 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Level" type="Node" parent="."]
+
+[node name="Camera" type="Camera" parent="Level"]
+script = ExtResource( 3 )
+forward_action = "move_forward"
+backward_action = "move_backward"
+left_action = "move_left"
+right_action = "move_right"
+up_action = "move_up"
+down_action = "move_down"
+use_gui = false
+
+[node name="Control" type="Control" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Coordinates" type="Label" parent="Control"]
+margin_right = 40.0
+margin_bottom = 14.0
+text = "Position"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorPicker" type="ColorPicker" parent="Control"]
+visible = false
+margin_left = 6.89319
+margin_top = 5.25528
+margin_right = 342.893
+margin_bottom = 467.255
