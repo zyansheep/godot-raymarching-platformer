@@ -1,14 +1,15 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Main.shader" type="Shader" id=1]
 [ext_resource path="res://Movement.gd" type="Script" id=2]
 [ext_resource path="res://assets/maujoe.camera_control/scripts/camera_control.gd" type="Script" id=3]
+[ext_resource path="res://addons/raymarch-obj/objects/sphere.gd" type="Script" id=4]
 
 [sub_resource type="ShaderMaterial" id=1]
 shader = ExtResource( 1 )
-shader_param/MAX_STEPS = 250
-shader_param/MAX_DIST = 200.0
-shader_param/MIN_HIT_DIST = 0.01
+shader_param/MAX_STEPS = 2500
+shader_param/MAX_DIST = 2000.0
+shader_param/MIN_HIT_DIST = 0.001
 shader_param/DERIVATIVE_STEP = 0.0001
 shader_param/fov = 45.0
 shader_param/cameraPos = Vector3( 0, 0, 14.5 )
@@ -19,7 +20,7 @@ shader_param/globalDiffuse = 1.0
 shader_param/globalSpecular = 1.0
 shader_param/globalSpecularExponent = 64.0
 shader_param/lightPos = Vector3( -3, 5, 3 )
-shader_param/lightColor = Vector3( 0.5, 0.5, 1 )
+shader_param/lightColor = Vector3( 0.917, 0.696, -0.068 )
 shader_param/ambientColor = Vector3( 1, 1, 1 )
 
 [node name="Root" type="Node"]
@@ -36,14 +37,19 @@ __meta__ = {
 [node name="Level" type="Node" parent="."]
 
 [node name="Camera" type="Camera" parent="Level"]
+transform = Transform( 1, 0, 0, 0, 0.948252, 0.31752, 0, -0.31752, 0.948252, 0, 0.691233, 1.82306 )
 script = ExtResource( 3 )
+max_speed = Vector3( 10, 10, 10 )
 forward_action = "move_forward"
 backward_action = "move_backward"
 left_action = "move_left"
 right_action = "move_right"
 up_action = "move_up"
 down_action = "move_down"
-use_gui = false
+
+[node name="RaySphere" type="Spatial" parent="Level"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.03673, 0, 0 )
+script = ExtResource( 4 )
 
 [node name="Control" type="Control" parent="."]
 margin_right = 40.0
@@ -62,7 +68,7 @@ __meta__ = {
 
 [node name="ColorPicker" type="ColorPicker" parent="Control"]
 visible = false
-margin_left = 6.89319
-margin_top = 5.25528
-margin_right = 342.893
-margin_bottom = 467.255
+margin_left = 38.8932
+margin_top = 37.2553
+margin_right = 374.893
+margin_bottom = 499.255

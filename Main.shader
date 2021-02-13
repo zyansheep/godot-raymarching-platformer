@@ -18,6 +18,12 @@ uniform vec3 lightPos = vec3(-2.0, 5.0, 3.0); // position of the light source
 uniform vec3 lightColor = vec3(0.9, 0.9, 0.68); // color of the light source
 uniform vec3 ambientColor = vec3(1.0, 1.0, 1.0); // ambient color
 
+mat2 rotMat(float a) {
+	float s = sin(a);
+	float c = cos(a);
+	return mat2(vec2(c, -s), vec2(s, c));
+}
+
 vec3 getRayDirection(vec2 resolution, vec2 uv) {
 	float aspect = resolution.x / resolution.y;
 	float fov2 = radians(fov) / 2.0;
@@ -37,16 +43,30 @@ vec3 getRayDirection(vec2 resolution, vec2 uv) {
 float sphereSDF(vec3 p, vec3 c, float r) {
 	return length(c - p) - r;
 }
-float sdVerticalCapsule( vec3 p, float h, float r ) {
-	p.y -= clamp( p.y, 0.0, h );
-	return length( p ) - r;
+float sdPlane( vec3 p, vec3 n, float h ) {
+  return dot(p,n) + h;
 }
+float sdRoundedCylinder( vec3 p, float ra, float rb, float h ) {
+  vec2 d = vec2( length(p.xz)-2.0*ra+rb, abs(p.y) - h );
+  return min(max(d.x,d.y),0.0) + length(max(d,0.0)) - rb;
+}
+
 vec3 opRep(vec3 p, vec3 c) {
     return mod(p+0.5*c,c)-0.5*c;
 }
+vec3 opTx(vec3 p, mat4 t) {
+    return (inverse(t) * vec4(p, 1)).xyz;
+}
 
 float sdf(vec3 pos) {
-	return sphereSDF(opRep(pos, vec3(4,4,4)), vec3(0), 1);
+	float spheres = sphereSDF(opRep(pos, vec3(4,4,4)), vec3(0), 1);
+	vec3 coin_pos = pos;
+	coin_pos.y -= 3.;
+	coin_pos.yz *= rotMat(3.1415926535/2.);
+	coin_pos.xz *= rotMat(2);
+	float coin =  sdRoundedCylinder(coin_pos, 1, 0.1, 0.1);
+	float plane = sdPlane(pos, vec3(0,1,0), 0.1);
+	return min(coin,plane);
 }
 vec3 estimateNormal(vec3 p) {
 	return normalize(vec3(
