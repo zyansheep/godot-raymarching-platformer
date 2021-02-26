@@ -6,7 +6,7 @@ uniform float MIN_HIT_DIST = 0.01; // hit depth threshold
 uniform float DERIVATIVE_STEP = 0.0001;
 
 uniform float fov = 45.0; // the vectical field of view (FOV) in degrees
-uniform vec3 cameraPos = vec3(0.0, 0.0, 5.0); // position of the camera in world coordinates
+uniform vec3 cameraPos = vec3(0.0, 0.0, 20.0); // position of the camera in world coordinates
 uniform vec3 front = vec3(0.0, 0.0, -1.0); // where are we looking at
 uniform vec3 up = vec3(0.0, 1.0, 0.0); // what we consider to be up
 
@@ -17,12 +17,6 @@ uniform float globalSpecularExponent = 64.0; // how focused is the shiny spot
 uniform vec3 lightPos = vec3(-2.0, 5.0, 3.0); // position of the light source
 uniform vec3 lightColor = vec3(0.9, 0.9, 0.68); // color of the light source
 uniform vec3 ambientColor = vec3(1.0, 1.0, 1.0); // ambient color
-
-mat2 rotMat(float a) {
-	float s = sin(a);
-	float c = cos(a);
-	return mat2(vec2(c, -s), vec2(s, c));
-}
 
 vec3 getRayDirection(vec2 resolution, vec2 uv) {
 	float aspect = resolution.x / resolution.y;
@@ -37,37 +31,13 @@ vec3 getRayDirection(vec2 resolution, vec2 uv) {
 	vec3 rayRight = normalize(cross(rayFront, normalize(up)));
 	vec3 rayUp = cross(rayRight, rayFront);
 	vec3 rayDir = rayFront + rayRight * offsets.x + rayUp * offsets.y;
-	
 	return normalize(rayDir);
 }
-float sphereSDF(vec3 p, vec3 c, float r) {
-	return length(c - p) - r;
-}
-float sdPlane( vec3 p, vec3 n, float h ) {
-  return dot(p,n) + h;
-}
-float sdRoundedCylinder( vec3 p, float ra, float rb, float h ) {
-  vec2 d = vec2( length(p.xz)-2.0*ra+rb, abs(p.y) - h );
-  return min(max(d.x,d.y),0.0) + length(max(d,0.0)) - rb;
-}
-
-vec3 opRep(vec3 p, vec3 c) {
-    return mod(p+0.5*c,c)-0.5*c;
-}
-vec3 opTx(vec3 p, mat4 t) {
-    return (inverse(t) * vec4(p, 1)).xyz;
-}
-
+// SDF START
 float sdf(vec3 pos) {
-	float spheres = sphereSDF(opRep(pos, vec3(4,4,4)), vec3(0), 1);
-	vec3 coin_pos = pos;
-	coin_pos.y -= 3.;
-	coin_pos.yz *= rotMat(3.1415926535/2.);
-	coin_pos.xz *= rotMat(2);
-	float coin =  sdRoundedCylinder(coin_pos, 1, 0.1, 0.1);
-	float plane = sdPlane(pos, vec3(0,1,0), 0.1);
-	return min(coin,plane);
+	return length(pos) - 1.;
 }
+// SDF END
 vec3 estimateNormal(vec3 p) {
 	return normalize(vec3(
 		sdf(vec3(p.x + DERIVATIVE_STEP, p.y, p.z)) - sdf(vec3(p.x - DERIVATIVE_STEP, p.y, p.z)),

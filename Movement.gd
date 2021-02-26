@@ -7,18 +7,18 @@ extends Node
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	$Level.gen_level_shader()
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	pass
 
 var position = Vector3(0,0,0)
 var rotation = Vector3(0,0,0)
 
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	var camera = $Level/Camera
 	var shader = $Canvas.material;
 	position = camera.get_camera_transform().origin
@@ -29,5 +29,5 @@ func _physics_process(delta):
 	
 	#let color = $"../ColorPicker".color;
 	#self.material.set_shader_param("lightColor", color)
-		
+	
 	

@@ -1,9 +1,13 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Main.shader" type="Shader" id=1]
 [ext_resource path="res://Movement.gd" type="Script" id=2]
 [ext_resource path="res://assets/maujoe.camera_control/scripts/camera_control.gd" type="Script" id=3]
 [ext_resource path="res://addons/raymarch-obj/objects/sphere.gd" type="Script" id=4]
+[ext_resource path="res://addons/raymarch-obj/rayobject.gd" type="Script" id=5]
+[ext_resource path="res://custom_rayobject.shader" type="Shader" id=6]
+[ext_resource path="res://addons/raymarch-obj/objects/sphere.shader" type="Shader" id=7]
+[ext_resource path="res://Level.gd" type="Script" id=8]
 
 [sub_resource type="ShaderMaterial" id=1]
 shader = ExtResource( 1 )
@@ -35,11 +39,14 @@ __meta__ = {
 }
 
 [node name="Level" type="Node" parent="."]
+script = ExtResource( 8 )
 
 [node name="Camera" type="Camera" parent="Level"]
 transform = Transform( 1, 0, 0, 0, 0.948252, 0.31752, 0, -0.31752, 0.948252, 0, 0.691233, 1.82306 )
 script = ExtResource( 3 )
-max_speed = Vector3( 10, 10, 10 )
+mouselook = false
+smoothness = 0.039
+max_speed = Vector3( 20, 20, 20 )
 forward_action = "move_forward"
 backward_action = "move_backward"
 left_action = "move_left"
@@ -47,9 +54,13 @@ right_action = "move_right"
 up_action = "move_up"
 down_action = "move_down"
 
+[node name="RayObject" type="Spatial" parent="Level"]
+script = ExtResource( 5 )
+distance_function = ExtResource( 6 )
+
 [node name="RaySphere" type="Spatial" parent="Level"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.03673, 0, 0 )
 script = ExtResource( 4 )
+distance_function = ExtResource( 7 )
 
 [node name="Control" type="Control" parent="."]
 margin_right = 40.0
@@ -65,10 +76,3 @@ text = "Position"
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="ColorPicker" type="ColorPicker" parent="Control"]
-visible = false
-margin_left = 38.8932
-margin_top = 37.2553
-margin_right = 374.893
-margin_bottom = 499.255
