@@ -20,15 +20,15 @@ func gen_level_shader():
 	var regex = RegEx.new()
 	regex.compile("""\/\/ SDF START(.|\n)*SDF END""")
 	
-	var child_combine_func = "100000000.0";
+	var child_combine_func = "vec4(0.,0.,0.,100000000.0)";
 	var replacement_sdf = ""
 	for child in self.get_children():
 		if child.has_method("get_shader_text"):
-			child_combine_func = "min(" + child_combine_func + ", " + "sdf_" + String(child.get_instance_id()) + "(p))"
+			child_combine_func = "opU(" + child_combine_func + ", " + "sdf_" + String(child.get_instance_id()) + "(p))"
 			print(child_combine_func)
 			replacement_sdf += ("\n" + child.get_shader_text())
 	
-	replacement_sdf += "\nfloat sdf(vec3 p) {\n\treturn " + child_combine_func + ";\n}";
+	replacement_sdf += "\nvec4 sdf(vec3 p) {\n\treturn " + child_combine_func + ";\n}";
 	
 	var shader_text = regex.sub(original_shader_code, replacement_sdf, true);
 	#print(shader_text)

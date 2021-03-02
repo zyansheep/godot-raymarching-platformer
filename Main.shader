@@ -4,12 +4,10 @@ uniform int MAX_STEPS = 250; // march at most 250 times
 uniform float MAX_DIST = 200; // don't continue if depth if larger than 20
 uniform float MIN_HIT_DIST = 0.01; // hit depth threshold
 uniform float DERIVATIVE_STEP = 0.0001;
-
 uniform float fov = 45.0; // the vectical field of view (FOV) in degrees
 uniform vec3 cameraPos = vec3(0.0, 0.0, 20.0); // position of the camera in world coordinates
 uniform vec3 front = vec3(0.0, 0.0, -1.0); // where are we looking at
 uniform vec3 up = vec3(0.0, 1.0, 0.0); // what we consider to be up
-
 uniform float globalAmbient = 0.1; // how strong is the ambient lightning
 uniform float globalDiffuse = 1.0; // how strong is the diffuse lightning
 uniform float globalSpecular = 1.0; // how strong is the specular lightning
@@ -17,7 +15,14 @@ uniform float globalSpecularExponent = 64.0; // how focused is the shiny spot
 uniform vec3 lightPos = vec3(-2.0, 5.0, 3.0); // position of the light source
 uniform vec3 lightColor = vec3(0.9, 0.9, 0.68); // color of the light source
 uniform vec3 ambientColor = vec3(1.0, 1.0, 1.0); // ambient color
-
+vec4 opU(vec4 sdf1, vec4 sdf2) {
+	return (sdf1.w < sdf2.w) ? sdf1 : sdf2;
+}
+// SDF START
+vec4 sdf(vec3 pos) {
+	return vec4(1.,1.,1.,length(pos) - 1.);
+}
+// SDF END
 vec3 getRayDirection(vec2 resolution, vec2 uv) {
 	float aspect = resolution.x / resolution.y;
 	float fov2 = radians(fov) / 2.0;
@@ -33,16 +38,11 @@ vec3 getRayDirection(vec2 resolution, vec2 uv) {
 	vec3 rayDir = rayFront + rayRight * offsets.x + rayUp * offsets.y;
 	return normalize(rayDir);
 }
-// SDF START
-float sdf(vec3 pos) {
-	return length(pos) - 1.;
-}
-// SDF END
 vec3 estimateNormal(vec3 p) {
 	return normalize(vec3(
-		sdf(vec3(p.x + DERIVATIVE_STEP, p.y, p.z)) - sdf(vec3(p.x - DERIVATIVE_STEP, p.y, p.z)),
-		sdf(vec3(p.x, p.y + DERIVATIVE_STEP, p.z)) - sdf(vec3(p.x, p.y - DERIVATIVE_STEP, p.z)),
-		sdf(vec3(p.x, p.y, p.z  + DERIVATIVE_STEP)) - sdf(vec3(p.x, p.y, p.z - DERIVATIVE_STEP))
+		sdf(vec3(p.x + DERIVATIVE_STEP, p.y, p.z)).w - sdf(vec3(p.x - DERIVATIVE_STEP, p.y, p.z)).w,
+		sdf(vec3(p.x, p.y + DERIVATIVE_STEP, p.z)).w - sdf(vec3(p.x, p.y - DERIVATIVE_STEP, p.z)).w,
+		sdf(vec3(p.x, p.y, p.z  + DERIVATIVE_STEP)).w - sdf(vec3(p.x, p.y, p.z - DERIVATIVE_STEP)).w
 	));
 }
 vec3 blinnPhong(vec3 position, // hit point
@@ -74,9 +74,10 @@ vec3 raymarch(vec3 rayDir) {
 	for (int i=0; depth < MAX_DIST && i < MAX_STEPS; ++i)
 	{
 		vec3 pos = cameraPos + rayDir * depth;
-		float dist = sdf(pos);
+		vec4 color_dist = sdf(pos);
+		float dist = color_dist.w;
 		if (dist < MIN_HIT_DIST) {
-			return blinnPhong(pos, lightPos, ambientColor, lightColor,
+			return blinnPhong(pos, lightPos, ambientColor, color_dist.xyz,
 				globalAmbient, globalDiffuse, globalSpecular, globalSpecularExponent);
 		}
 		depth += dist;
