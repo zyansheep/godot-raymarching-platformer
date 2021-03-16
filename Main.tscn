@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://Main.shader" type="Shader" id=1]
 [ext_resource path="res://Movement.gd" type="Script" id=2]
@@ -6,7 +6,7 @@
 [ext_resource path="res://addons/raymarch-obj/objects/sphere.gd" type="Script" id=4]
 [ext_resource path="res://addons/raymarch-obj/rayobject.gd" type="Script" id=5]
 [ext_resource path="res://custom_rayobject.shader" type="Shader" id=6]
-[ext_resource path="res://addons/raymarch-obj/objects/sphere.shader" type="Shader" id=7]
+[ext_resource path="res://addons/raymarch-obj/objects/Sphere.shader" type="Shader" id=7]
 [ext_resource path="res://Level.gd" type="Script" id=8]
 
 [sub_resource type="ShaderMaterial" id=1]
@@ -27,6 +27,48 @@ shader_param/lightPos = Vector3( -3, 5, 3 )
 shader_param/lightColor = Vector3( 0.917, 0.696, -0.068 )
 shader_param/ambientColor = Vector3( 1, 1, 1 )
 
+[sub_resource type="Shader" id=2]
+code = "shader_type canvas_item;
+
+vec4 mainSDF( vec3 p ) {
+	vec2 t = vec2(2., 1.);
+	vec2 q = vec2(length(p.xz)-t.x,p.y);
+	return vec4(0.,1.,0., length(q)-t.y);
+}"
+
+[sub_resource type="Shader" id=3]
+code = "shader_type canvas_item;
+
+vec4 mainSDF(vec3 pos) {
+    //pos = mod(pos, 4.0) - 2.0;
+	vec3 z = pos;
+	float dr = 1.0;
+	float r = 0.0;
+    int Iterations = 4;
+    float Bailout = 3.0;
+    float Power = 8.0;
+	for (int i = 0; i < Iterations ; i++) {
+		r = length(z);
+		if (r>Bailout) break;
+		
+		// convert to polar coordinates
+		float theta = acos(z.z/r);
+		float phi = atan(z.y,z.x);
+		dr =  pow(r, Power-1.0)*Power*dr + 1.0;
+		
+		// scale and rotate the point
+		float zr = pow( r,Power);
+		theta = theta*Power;
+		phi = phi*Power;
+		
+		// convert back to cartesian coordinates
+		z = zr*vec3(sin(theta)*cos(phi), sin(phi)*sin(theta), cos(theta));
+		z+=pos*(cos(0) / 1.5 + 1.2);
+	}
+	float dist = 0.5*log(r)*r/dr;
+	return vec4(255,0,255,dist);
+}"
+
 [node name="Root" type="Node"]
 script = ExtResource( 2 )
 
@@ -42,9 +84,8 @@ __meta__ = {
 script = ExtResource( 8 )
 
 [node name="Camera" type="Camera" parent="Level"]
-transform = Transform( 1, 0, 0, 0, 0.948252, 0.31752, 0, -0.31752, 0.948252, 0, 0.691233, 1.82306 )
+transform = Transform( 1, 0, 0, 0, 0.948252, 0.31752, 0, -0.31752, 0.948252, 0, 0.691233, 3.27194 )
 script = ExtResource( 3 )
-mouselook = false
 smoothness = 0.039
 max_speed = Vector3( 20, 20, 20 )
 forward_action = "move_forward"
@@ -58,9 +99,20 @@ down_action = "move_down"
 script = ExtResource( 5 )
 distance_function = ExtResource( 6 )
 
+[node name="Torus" type="Spatial" parent="Level"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.813407, 0 )
+script = ExtResource( 5 )
+distance_function = SubResource( 2 )
+
 [node name="RaySphere" type="Spatial" parent="Level"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.88585, 0, -1.81075 )
 script = ExtResource( 4 )
 distance_function = ExtResource( 7 )
+
+[node name="Mandelbulb" type="Spatial" parent="Level"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.14139, 0, 0 )
+script = ExtResource( 5 )
+distance_function = SubResource( 3 )
 
 [node name="Control" type="Control" parent="."]
 margin_right = 40.0
@@ -73,6 +125,17 @@ __meta__ = {
 margin_right = 40.0
 margin_bottom = 14.0
 text = "Position"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Speed" type="Label" parent="Control"]
+margin_left = 970.879
+margin_top = 0.466461
+margin_right = 1022.88
+margin_bottom = 14.4665
+text = "Speed"
+align = 2
 __meta__ = {
 "_edit_use_anchors_": false
 }

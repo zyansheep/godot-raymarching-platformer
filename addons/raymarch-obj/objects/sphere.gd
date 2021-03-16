@@ -2,7 +2,7 @@ tool
 extends RayObject
 class_name RaySphere, "../icons/sphere.svg"
 
-var shader = preload("sphere.shader")
+var shader = preload("Sphere.shader")
 export var radius = 1
 
 # Called when the node enters the scene tree for the first time.
