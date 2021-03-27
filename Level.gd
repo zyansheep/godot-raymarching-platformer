@@ -25,13 +25,14 @@ func gen_level_shader():
 	for child in self.get_children():
 		if child.has_method("get_shader_text"):
 			child_combine_func = "opU(" + child_combine_func + ", " + "sdf_" + String(child.get_instance_id()) + "(p))"
-			print(child_combine_func)
-			replacement_sdf += ("\n" + child.get_shader_text())
+			var child_shader_text = child.get_shader_text();
+			print(child_shader_text)
+			replacement_sdf += ("\n" + child_shader_text)
 	
 	replacement_sdf += "\nvec4 sdf(vec3 p) {\n\treturn " + child_combine_func + ";\n}";
 	
 	var shader_text = regex.sub(original_shader_code, replacement_sdf, true);
-	#print(shader_text)
+#	print(shader_text)
 	$"../Canvas".material.shader.code = shader_text;
 	
 	var line_num = 0;

@@ -24,9 +24,9 @@ var panel
 var mouse_over = false
 var mouse_pressed = false
 
-func _init(camera, shortcut):
-	self.camera = camera
-	self.shortcut = shortcut
+func _init(in_camera, in_shortcut):
+	self.camera = in_camera
+	self.shortcut = in_shortcut
 
 func _ready():
 	if camera.enabled:
@@ -211,7 +211,7 @@ func _input(event):
 		elif event is InputEventMouseMotion and mouse_over and mouse_pressed:
 			panel.set_begin(panel.get_begin() + event.relative)
 
-func _update_privots(privot):
+func _update_privots(_privot):
 	privot.clear()
 	privot.add_item("None")
 	node_list = _get_spatials_recusiv(get_tree().get_root(), [get_name(), camera.get_name()])

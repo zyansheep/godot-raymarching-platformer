@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://Main.shader" type="Shader" id=1]
 [ext_resource path="res://Movement.gd" type="Script" id=2]
@@ -36,7 +36,9 @@ vec4 mainSDF( vec3 p ) {
 	return vec4(0.,1.,0., length(q)-t.y);
 }"
 
-[sub_resource type="Shader" id=3]
+[sub_resource type="SphereShape" id=3]
+
+[sub_resource type="Shader" id=4]
 code = "shader_type canvas_item;
 
 vec4 mainSDF(vec3 pos) {
@@ -68,6 +70,12 @@ vec4 mainSDF(vec3 pos) {
 	float dist = 0.5*log(r)*r/dr;
 	return vec4(255,0,255,dist);
 }"
+
+[sub_resource type="PhysicsMaterial" id=5]
+bounce = 10.0
+
+[sub_resource type="BoxShape" id=6]
+extents = Vector3( 7.62609, 0.422778, 7.43826 )
 
 [node name="Root" type="Node"]
 script = ExtResource( 2 )
@@ -105,14 +113,28 @@ script = ExtResource( 5 )
 distance_function = SubResource( 2 )
 
 [node name="RaySphere" type="Spatial" parent="Level"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.88585, 0, -1.81075 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.140726, 0, -1.81075 )
 script = ExtResource( 4 )
 distance_function = ExtResource( 7 )
+
+[node name="RigidBody" type="RigidBody" parent="Level/RaySphere"]
+visible = false
+
+[node name="CollisionShape" type="CollisionShape" parent="Level/RaySphere/RigidBody"]
+visible = false
+shape = SubResource( 3 )
 
 [node name="Mandelbulb" type="Spatial" parent="Level"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.14139, 0, 0 )
 script = ExtResource( 5 )
-distance_function = SubResource( 3 )
+distance_function = SubResource( 4 )
+
+[node name="StaticBody" type="StaticBody" parent="Level"]
+physics_material_override = SubResource( 5 )
+
+[node name="CollisionShape" type="CollisionShape" parent="Level/StaticBody"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.57195, 0 )
+shape = SubResource( 6 )
 
 [node name="Control" type="Control" parent="."]
 margin_right = 40.0

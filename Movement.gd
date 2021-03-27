@@ -28,7 +28,7 @@ func _physics_process(_delta):
 	shader.set_shader_param("cameraPos", position)
 	shader.set_shader_param("front", rotation)
 	
-	#shader.set_shader_param("transform", $Level/RaySphere.global_transform)
+	shader.set_shader_param("transform", $Level/RaySphere.global_transform)
 	shader.set_shader_param("color", Vector3(255,0,255))
 	
 	if Input.is_action_just_released("speed_up"):
